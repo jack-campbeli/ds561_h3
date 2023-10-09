@@ -4,9 +4,7 @@ from google.cloud import pubsub_v1
 def banned_countries_message():
 
     timeout = 5.0
-
     subscriber = pubsub_v1.SubscriberClient()
-
     subscription_path = subscriber.subscription_path('jacks-project-398813', 'banned_countries-sub')
 
     def callback(message: pubsub_v1.subscriber.message.Message) -> None:
@@ -27,3 +25,4 @@ def banned_countries_message():
             streaming_pull_future.result()  # Block until the shutdown is complete.
 
 banned_countries_message()
+print("The above requests were intercepted and denied")

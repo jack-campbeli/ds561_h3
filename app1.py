@@ -35,7 +35,7 @@ def files_get(request):
             print("No Country")
 
         # checking country
-        if country is None or country.lower() not in [x.lower() for x in banned]:
+        if country not in banned: # country is None or
             print("Permission Granted")
             
             # getting file contents

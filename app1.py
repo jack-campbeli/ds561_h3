@@ -58,7 +58,7 @@ def files_get(request):
         else:
             print("Permission Denied")
             publisher = pubsub_v1.PublisherClient()
-            topic_path = publisher.topic_path('jacks-project-398813', 'banned_countries-sub')
+            topic_path = publisher.topic_path('jacks-project-398813', 'banned_countries')
     
             # bytestring data
             data_str = f"{country}"

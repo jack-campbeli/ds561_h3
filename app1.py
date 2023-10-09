@@ -26,25 +26,27 @@ def files_get(request):
         print("Method not implemented: ", method)
         return 'Not Implemented', 501
     else:
+        country = None
+        # getting country 
+        if 'X-country' in request.headers:
+            country = request.headers.get("X-country").lower().strip()
+            print("Country: ", country)
+        else:
+            print("No Country")
 
-        country = request.headers.get('X-country')
-        print("Country: ", country.lower())
-        
-        if country.lower() not in banned:
-
+        # checking country
+        if country is None or country.lower() not in [x.lower() for x in banned]:
+            print("Permission Granted")
+            
+            # getting file contents
             file_name = get_file_name(request)
-
             client = storage.Client()
-            
-            bucket_name = 'bu-ds561-jawicamp'
-            bucket = client.bucket(bucket_name)
-            
+            bucket = client.bucket('bu-ds561-jawicamp')            
             blob = bucket.blob(file_name)
 
             try:
-
+                # returning file contents and OK status
                 content = blob.download_as_text()
-
                 response = Response(content, status=200, headers={'Content-Type': 'text/html'})
 
                 return response
@@ -58,13 +60,16 @@ def files_get(request):
             publisher = pubsub_v1.PublisherClient()
             topic_path = publisher.topic_path('jacks-project-398813', 'banned_countries-sub')
     
+            # bytestring data
             data_str = f"{country}"
-            # Data must be a bytestring
             data = data_str.encode("utf-8")
-            # When you publish a message, the client returns a future.
-            future = publisher.publish(topic_path, data)
-            print(future.result())
+            
+            # try to publish
+            try:
+                future = publisher.publish(topic_path, data)
+                future.result()  # Wait for the publish operation to complete
+                print("Published to Pub/Sub successfully")
+            except Exception as e:
+                print("Error publishing to Pub/Sub:", str(e))
+                return "Publish Denied", 400
             return "Permission Denied", 400
-
-# Notes:
-# - python http-client.py -d "us-central1-jacks-project-398813.cloudfunctions.net" -b "none" -w "files_get" -v -n 5 -i 10000 
